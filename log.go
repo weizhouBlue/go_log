@@ -4,6 +4,9 @@ import (
     "log"
     "fmt"
     "os"
+    "runtime"
+    "strconv"
+    "strings"
 )
 
 const (
@@ -27,6 +30,28 @@ type Clog struct {
 
 var recorder Clog
 
+func toString(a interface{}) string {
+    if v, p := a.(int); p {
+        return strconv.Itoa(v)
+    }
+    if v, p := a.(int16); p {
+        return strconv.Itoa(int(v))
+    }
+    if v, p := a.(int32); p {
+        return strconv.Itoa(int(v))
+    }
+    if v, p := a.(uint); p {
+        return strconv.Itoa(int(v))
+    }
+    if v, p := a.(float32); p {
+        return strconv.FormatFloat(float64(v), 'f', -1, 32)
+    }
+    if v, p := a.(float64); p {
+        return strconv.FormatFloat(v, 'f', -1, 32)
+    }
+    return ""
+}
+
 func existFile( filePath string ) bool {
 	   if info , err := os.Stat(filePath) ; err==nil {
 		if ! info.IsDir() {
@@ -34,6 +59,15 @@ func existFile( filePath string ) bool {
 		}
     }
     return false
+}
+
+func getFileName( path string ) string {
+    b:=strings.LastIndex(path,"/")
+    if b>=0 {
+        return path[b+1:]
+    }else{
+        return path
+    }
 }
 
 func Config(  level int , prefix , filePath string )  {
@@ -47,10 +81,10 @@ func Config(  level int , prefix , filePath string )  {
 			panic(err)
 		}
 		recorder.file=file
-    	recorder.Logger=log.New( file , "["+prefix+"] " , log.Ltime | log.Lshortfile   )
+    	recorder.Logger=log.New( file , "["+prefix+"] " , log.Ltime )
     	fmt.Printf("initialize clog , output to file %s \n" , filePath )
 	}else{
-    	recorder.Logger=log.New( os.Stdout , "["+prefix+"]"  , log.Ltime | log.Lshortfile   )
+    	recorder.Logger=log.New( os.Stdout , "["+prefix+"]"  , log.Ltime  )
     	fmt.Printf("initialize clog , output to stdout \n"  )
 	}
     recorder.Outputlevel=level
@@ -65,7 +99,14 @@ func Log( level int , format string , v ... interface{}){
 	}
 
 	if level >= recorder.Outputlevel {
-		recorder.Logger.Printf( "[" + log_level[level] + "] " + format, v... )
+		prefix := "[" + log_level[level] + "] "
+	    funcName,filepath ,line,ok := runtime.Caller(1)
+	    if ok {
+	    	file:=getFileName(filepath)
+	    	funcname:=getFileName(runtime.FuncForPC(funcName).Name())
+	    	prefix = prefix + "[" + file + " " + funcname + " " + toString(line) +  "] "
+	    }
+		recorder.Logger.Printf( prefix + format, v... )
 	}
 
 	if level == Panic {
@@ -78,5 +119,6 @@ func Close(){
 		recorder.file.Close()
 	}
 }
+
 
 
