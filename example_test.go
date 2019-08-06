@@ -8,7 +8,7 @@ import (
 
 
 func Test_stdout(t *testing.T){
-    log.Conf(  log.Info , "test module" , "" ) 
+    log.Config(  log.Info , "test module" , "" ) 
 
     log.Log( log.Debug , "this is an debug message" )
     log.Log( log.Info ,  "this is an info message" )
@@ -19,7 +19,7 @@ func Test_stdout(t *testing.T){
 
 func Test_file(t *testing.T){
     fileName := "./log"
-    log.Conf(  log.Info , "test module" , fileName ) 
+    log.Config(  log.Info , "test module" , fileName ) 
 
     log.Log( log.Debug , "this is an debug message" )
     log.Log( log.Info ,  "this is an info message" )

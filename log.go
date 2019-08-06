@@ -36,7 +36,7 @@ func existFile( filePath string ) bool {
     return false
 }
 
-func Conf(  level int , prefix , filePath string )  {
+func Config(  level int , prefix , filePath string )  {
 	if recorder.file != nil {
 		recorder.file.Close()
 	}
@@ -61,7 +61,7 @@ func Conf(  level int , prefix , filePath string )  {
 func Log( level int , format string , v ... interface{}){
 	if recorder.Logger == nil {
 		fmt.Println("clog module is initialized by default")
-		Conf( Info , "" , "" )
+		Config( Info , "" , "" )
 	}
 
 	if level >= recorder.Outputlevel {
