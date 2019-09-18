@@ -100,13 +100,14 @@ func Log( level int , format string , v ... interface{}){
 
 	if level >= recorder.Outputlevel {
 		prefix := "[" + log_level[level] + "] "
+        sufix := ""
 	    funcName,filepath ,line,ok := runtime.Caller(1)
 	    if ok {
 	    	file:=getFileName(filepath)
 	    	funcname:=getFileName(runtime.FuncForPC(funcName).Name())
-	    	prefix = prefix + "[" + file + " " + funcname + " " + toString(line) +  "] "
+	    	sufix = " [" + file + " " + funcname + " " + toString(line) +  "] "
 	    }
-		recorder.Logger.Printf( prefix + format, v... )
+		recorder.Logger.Printf( prefix + format + sufix , v... )
 	}
 
 	if level == Panic {
