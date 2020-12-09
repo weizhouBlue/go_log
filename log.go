@@ -75,6 +75,7 @@ func Config(  level int , prefix , filePath string )  {
 		recorder.file.Close()
 	}
 
+    recorder.Outputlevel=level
 	if len(filePath) > 0 {
 		file, err := os.OpenFile( filePath , os.O_CREATE | os.O_WRONLY | os.O_APPEND , 0755) 
 		if err!=nil {
@@ -82,13 +83,16 @@ func Config(  level int , prefix , filePath string )  {
 		}
 		recorder.file=file
     	recorder.Logger=log.New( file , "["+prefix+"] " , log.Ltime )
-    	fmt.Printf("initialize clog , output to file %s \n" , filePath )
+        Log(Debug , "initialize clog , output to file %s \n" , filePath  )
+    	//fmt.Printf(  "initialize clog , output to file %s \n" , filePath )
 	}else{
     	recorder.Logger=log.New( os.Stdout , "["+prefix+"]"  , log.Ltime  )
-    	fmt.Printf("initialize clog , output to stdout \n"  )
+        Log(Debug , "initialize clog , output to stdout \n"  )    	
+        //fmt.Printf("initialize clog , output to stdout \n"  )
 	}
-    recorder.Outputlevel=level
-    fmt.Printf("initialize clog , set level to %s \n" , log_level[level] )
+
+    Log(Debug , "initialize clog , set level to %s \n" , log_level[level]  )
+    //fmt.Printf("initialize clog , set level to %s \n" , log_level[level] )
 
 }
 
@@ -99,6 +103,7 @@ func Log( level int , format string , v ... interface{}){
 	}
 
 	if level >= recorder.Outputlevel {
+
 		prefix := "[" + log_level[level] + "] "
 	    funcName,filepath ,line,ok := runtime.Caller(1)
 	    if ok {
@@ -106,8 +111,18 @@ func Log( level int , format string , v ... interface{}){
 	    	funcname:=getFileName(runtime.FuncForPC(funcName).Name())
 	    	prefix += "[" + file + " " + funcname + " " + toString(line) +  "]     "
 	    }
-		recorder.Logger.Printf( prefix + format , v... )
+
+        if level >= Err {
+            fmt.Fprintf( os.Stderr ,  prefix + format ,  v... ) 
+            if recorder.file!=nil{
+                // record to file
+                recorder.Logger.Printf( prefix + format , v... )
+            }
+        }else{
+            recorder.Logger.Printf( prefix + format , v... )
+        }
 	}
+
 
 	if level == Panic {
 		panic( "PANIC happen" )
