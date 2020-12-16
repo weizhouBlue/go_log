@@ -7,6 +7,7 @@ import (
     "runtime"
     "strconv"
     "strings"
+    "time"
 )
 
 const (
@@ -26,6 +27,7 @@ type Clog struct {
     Logger *log.Logger
     Outputlevel int 
     file *os.File
+    prefix string
 }
 
 var recorder Clog
@@ -86,10 +88,11 @@ func Config(  level int , prefix , filePath string )  {
         Log(Debug , "initialize clog , output to file %s \n" , filePath  )
     	//fmt.Printf(  "initialize clog , output to file %s \n" , filePath )
 	}else{
-    	recorder.Logger=log.New( os.Stdout , "["+prefix+"]"  , log.Ltime  )
+    	recorder.Logger=log.New( os.Stdout , "["+prefix+"] "  , log.Ltime  )
         Log(Debug , "initialize clog , output to stdout \n"  )    	
         //fmt.Printf("initialize clog , output to stdout \n"  )
 	}
+    recorder.prefix="["+prefix+"] "
 
     Log(Debug , "initialize clog , set level to %s \n" , log_level[level]  )
     //fmt.Printf("initialize clog , set level to %s \n" , log_level[level] )
@@ -106,26 +109,31 @@ func Log( level int , format string , v ... interface{}){
 
 		prefix := "[" + log_level[level] + "] "
 	    funcName,filepath ,line,ok := runtime.Caller(1)
+        suffix:=""
 	    if ok {
 	    	file:=getFileName(filepath)
 	    	funcname:=getFileName(runtime.FuncForPC(funcName).Name())
-	    	prefix += "[" + file + " " + funcname + " " + toString(line) +  "]     "
+	    	suffix = "    [" + file + " " + funcname + " " + toString(line) +  "]"
 	    }
 
+        format=strings.TrimSpace(format)
+        format=strings.TrimSuffix(format, "\n")
+
         if level >= Err {
-            fmt.Fprintf( os.Stderr ,  prefix + format ,  v... ) 
+            s:=fmt.Sprintf( recorder.prefix + "%v " + prefix + format + suffix + "\n" , time.Now().Format("15:04:05") )
+            fmt.Fprintf( os.Stderr ,  s  ,  v... ) 
             if recorder.file!=nil{
                 // record to file
-                recorder.Logger.Printf( prefix + format , v... )
+                recorder.Logger.Printf( prefix + format + suffix + "\n" , v... )
             }
         }else{
-            recorder.Logger.Printf( prefix + format , v... )
+            recorder.Logger.Printf( prefix + format + suffix + "\n" , v... )
         }
 	}
 
 
 	if level == Panic {
-		panic( "PANIC happen" )
+		panic( "error! PANIC happen" )
 	}
 }
 
