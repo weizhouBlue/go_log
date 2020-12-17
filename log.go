@@ -119,8 +119,12 @@ func Log( level int , format string , v ... interface{}){
         format=strings.TrimRight(format," \n")
 
         if level >= Err {
-            s:=fmt.Sprintf( recorder.prefix + "%v " + prefix + format + suffix + "\n" , time.Now().Format("15:04:05") )
-            fmt.Fprintf( os.Stderr ,  s  ,  v... ) 
+            //s:=fmt.Sprintf( recorder.prefix + "%v " + prefix + format + suffix + "\n" , time.Now().Format("15:04:05") )
+            //fmt.Fprintf( os.Stderr ,  s  ,  v... ) 
+
+            fmt.Fprintf( os.Stderr ,  recorder.prefix + time.Now().Format("15:04:05") + " " + prefix + format + suffix + "\n"   ,  v... )
+
+
             if recorder.file!=nil{
                 // record to file
                 recorder.Logger.Printf( prefix + format + suffix + "\n" , v... )
