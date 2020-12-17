@@ -116,8 +116,7 @@ func Log( level int , format string , v ... interface{}){
 	    	suffix = "    [" + file + " " + funcname + " " + toString(line) +  "]"
 	    }
 
-        format=strings.TrimSpace(format)
-        format=strings.TrimSuffix(format, "\n")
+        format=strings.TrimRight(format," \n")
 
         if level >= Err {
             s:=fmt.Sprintf( recorder.prefix + "%v " + prefix + format + suffix + "\n" , time.Now().Format("15:04:05") )

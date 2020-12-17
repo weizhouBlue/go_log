@@ -13,9 +13,9 @@ func Test_stdout(t *testing.T){
 
     log.Config(  log.Info , BinName , "" ) 
 
+    log.Log( log.Debug , "    this is an debug message \n" )
     log.Log( log.Debug , "this is an debug message \n" )
-    log.Log( log.Debug , "this is an debug message \n" )
-    log.Log( log.Info ,  "this is an info message \n" )
+    log.Log( log.Info ,  "             this is an info message \n  \n" )
     log.Log( log.Info ,  "this is an info message \n" )
     log.Log( log.Err ,  "this is an err message \n" )
     log.Log( log.Err ,  "this is an err message \n" )
