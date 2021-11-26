@@ -1,13 +1,13 @@
 package go_log
 
 import (
-    "log"
-    "fmt"
-    "os"
-    "runtime"
-    "strconv"
-    "strings"
-    "time"
+	"fmt"
+	"log"
+	"os"
+	"runtime"
+	"strconv"
+	"strings"
+	"time"
 )
 
 const (
@@ -84,11 +84,11 @@ func Config(  level int , prefix , filePath string )  {
 			panic(err)
 		}
 		recorder.file=file
-    	recorder.Logger=log.New( file , "["+prefix+"] " , log.Ltime )
+    	recorder.Logger=log.New( file , "["+prefix+"] " , log.Ltime|log.Ldate )
         Log(Debug , "initialize clog , output to file %s \n" , filePath  )
     	//fmt.Printf(  "initialize clog , output to file %s \n" , filePath )
 	}else{
-    	recorder.Logger=log.New( os.Stdout , "["+prefix+"] "  , log.Ltime  )
+    	recorder.Logger=log.New( os.Stdout , "["+prefix+"] "  , log.Ltime|log.Ldate  )
         Log(Debug , "initialize clog , output to stdout \n"  )    	
         //fmt.Printf("initialize clog , output to stdout \n"  )
 	}
@@ -118,20 +118,12 @@ func Log( level int , format string , v ... interface{}){
 
         format=strings.TrimRight(format," \n")
 
-        if level >= Err {
-            //s:=fmt.Sprintf( recorder.prefix + "%v " + prefix + format + suffix + "\n" , time.Now().Format("15:04:05") )
-            //fmt.Fprintf( os.Stderr ,  s  ,  v... ) 
+		recorder.Logger.Printf( prefix + format + suffix + "\n" , v... )
+        if level >= Err && recorder.file!=nil {
+			// append it to stderr when recoreder is file
+			fmt.Fprintf( os.Stderr ,  recorder.prefix + time.Now().Format("2006-01-02 15:04:05") + " " + prefix + format + suffix + "\n"   ,  v... )
+		}
 
-            fmt.Fprintf( os.Stderr ,  recorder.prefix + time.Now().Format("15:04:05") + " " + prefix + format + suffix + "\n"   ,  v... )
-
-
-            if recorder.file!=nil{
-                // record to file
-                recorder.Logger.Printf( prefix + format + suffix + "\n" , v... )
-            }
-        }else{
-            recorder.Logger.Printf( prefix + format + suffix + "\n" , v... )
-        }
 	}
 
 
