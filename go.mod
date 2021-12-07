@@ -1,3 +1,3 @@
-module github.com/weizhouBlue/go_log
+module go_log
 
-go 1.12
+go 1.17
