@@ -1,7 +1,7 @@
 package go_log_test
 
 import (
-	log "go_log"
+	log "github.com/weizhouBlue/go_log"
 	"os"
 	"path/filepath"
 	"testing"
