@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 const (
@@ -33,6 +34,7 @@ type Clog struct {
 }
 
 var recorder Clog
+var configLock sync.Mutex
 
 func toString(a interface{}) string {
 	if v, p := a.(int); p {
@@ -66,6 +68,9 @@ func getFileName(path string) string {
 }
 
 func Config(level int, prefix string, out io.Writer) {
+	configLock.Lock()
+	defer configLock.Unlock()
+
 	recorder.Outputlevel = level
 	recorder.Logger = log.New(out, "["+prefix+"] ", log.Ltime|log.Ldate)
 	recorder.prefix = "[" + prefix + "] "
